@@ -27,5 +27,5 @@
 %   PROTOCOLS       - Modules that run experiments
 %   UTILITY         - Functions for parameter access and generaly utility
 %
-% Copyright 2006-2011 dmeliza@uchicago.edu; see LICENSE
+% Copyright 2006-2013 dmeliza@uchicago.edu, arij@uchicago.edu; see LICENSE
 
