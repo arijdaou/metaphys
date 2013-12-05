@@ -25,6 +25,8 @@ DEFAULT_FILE    = 'metaphys.mcf';
 
 global mpctrl
 
+mpctrl
+
 if nargin == 0
     filename = [];
     if ispref('METAPHYS', 'basedir')
@@ -46,6 +48,8 @@ end
 
 % This will throw MATLAB:load:notBinaryFile if not a valid matfile
 z   = load('-mat', filename);
+z.defaults.data_prefix = 'aj';
+z.defaults.data_dir = 'C:\cygwin\home\adaou\data\';
 
 %% Copy to control structure
 if isfield(z, 'daq')
@@ -60,8 +64,16 @@ if isfield(z, 'daq')
     DebugPrint('Restored DAQ objects:%s.',...
         sprintf(' %s', daqnames{:}));
 end
-if isfield(z, 'instrument')
-    mpctrl.instrument = z.instrument;
+if isfield(z, 'instrument')       
+    try         
+        if strcmp(z.instrument.newinstrument_1.name,'newinstrument_1')            
+            z.instrument.newinstrument_1.name = 'Voltage Clamp';
+        end
+    catch
+        fprintf('Looks like you are on channel 2! \n');
+    end
+     
+    mpctrl.instrument = z.instrument;    
 end
 if isfield(z, 'defaults')
     if ~isempty(z.defaults)

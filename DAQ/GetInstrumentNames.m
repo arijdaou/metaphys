@@ -11,6 +11,6 @@ global mpctrl
 instruments = [];
 if isfield(mpctrl, 'instrument')
     if isstruct(mpctrl.instrument)
-        instruments     = fieldnames(mpctrl.instrument);
+       instruments  = fieldnames(mpctrl.instrument);            
     end
 end

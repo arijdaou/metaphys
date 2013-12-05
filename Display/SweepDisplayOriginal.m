@@ -86,17 +86,8 @@ for i = 1:length(packet.channels)
             delete(del)
         end
         set(h,'tag','single');
-        if(ind == 1)
-            ylabel(ax(ind), 'I_{channel_1} (pA)');
-        elseif(ind == 2)
-            ylabel(ax(ind), 'V_{channel_1} (mV)');
-        elseif(ind == 3)
-            ylabel(ax(ind), 'I_{channel_2} (pA)');
-        elseif(ind == 4)
-            ylabel(ax(ind), 'V_{channel_2} (mV)');
-        end
-%         ylabel(ax(ind),...
-%             sprintf('%s (%s)', packet.channels{i}, packet.units{i}));
+        ylabel(ax(ind),...
+            sprintf('%s (%s)', packet.channels{i}, packet.units{i}));
         % any time plot() gets called the zoom button is reset, so we have
         % to do this twice
         if strcmpi(ptrmode, 'zoom')
@@ -120,18 +111,6 @@ xlim    = get(ax, 'XLim');
 ylim    = get(ax, 'YLim');
 
 h       = plot(ax, time, data, varargin{:});
-set(ax, 'fontweight', 'bold', 'fontsize', 14);
-
-% if(ind == 1)
-%     ylabel(ax, 'I_{channel_1} (pA)');
-% elseif(ind == 2)
-%     ylabel(ax, 'V_{channel_1} (mV)');
-% elseif(ind == 3)
-%     ylabel(ax, 'I_{channel_2} (pA)');
-% elseif(ind == 4)
-%     ylabel(ax, 'V_{channel_3} (mV)');
-    
-
 switch axmode
     case 'holdx'
         set(ax, 'xlim', xlim, 'ylimmode', 'auto');
@@ -261,52 +240,33 @@ f   = OpenFigure(mfilename,'units','normalized',...
 
 InitParam(mfilename, 'hold_x', 'hidden')
 [c,p,s]   = GetInstrumentChannelNames(instrument,'output');
-
-
-nplots  = 3;
-
-totalh  = 0.85;
-gap = 0.01;
-y = 0.98;
-ax = zeros(1,2);
-height1 = totalh/3;
-height2 = totalh-height1;
-
-ax(1) = subplot(nplots, 1, 1);
-set(ax(1),'position',[0.057, y-height1, 0.9 height1],...
-    'XGrid','On','YGrid','On','Box','On',...
-    'nextplot','replacechildren',...
-    'tag',c{1},'xlim',[0 2000],'userdata',0);
-
-yl = ylabel('I_{channel_1} (pA)');
-set(yl, 'fontweight', 'bold', 'fontsize', 14);
-y   = y-height1-gap;
-
-
-ax(2) = subplot(nplots, 1, 2:3);
-set(ax(2),'position',[0.057, y-height2, 0.9 height2],...
-    'XGrid','On','YGrid','On','Box','On',...
-    'nextplot','replacechildren',...
-    'tag',c{2},'xlim',[0 2000],'userdata',0);
-
-yl = ylabel('V_{channel_1} (mV)');
-set(yl, 'fontweight', 'bold', 'fontsize', 14);
-% ylabel(s{2});
-
-set(ax(1:end-1), 'xticklabel', [])
-xl = xlabel(ax(end),'Time (ms)');
-set(xl, 'fontweight', 'bold', 'fontsize', 14);
-
-set(ax, 'fontweight', 'bold', 'fontsize', 14);
-
-if nargin > 1
-    set(ax, 'userdata', datamean_struct(n_repeats));
+nplots  = length(c);
+if nplots > 0
+    % The channel plots should be more tightly placed than subplot makes them
+    totalh  = 0.9;
+    height  = totalh / nplots;
+    gap     = 0.01;
+    y       = 0.98;
+    ax      = zeros(1,nplots);
+    for i = 1:nplots
+        ax(i) = subplot(nplots, 1, i);
+        set(ax(i),'position',[0.1, y-height, 0.89 height],...
+            'XGrid','On','YGrid','On','Box','On',...
+            'nextplot','add',...
+            'tag',c{i},'xlim',[0 1000])
+        ylabel(s{i})
+        y   = y-height-gap;
+    end
+    set(ax(1:end-1), 'xticklabel', [])
+    xlabel(ax(end),'Time (ms)')
+    if nargin > 1
+        set(ax, 'userdata', datamean_struct(n_repeats));
+    end
+    linkaxes(ax, 'x');
+else
+    uicontrol('style','text','String','No Channels Defined',...
+        'units','normalized','position',[0.4 0.45 0.2 0.1]);
 end
-    
-linkaxes(ax, 'x');
-
-
-
 
 function [] = destroyModule(varargin)
 DeleteSubscriber(mfilename);

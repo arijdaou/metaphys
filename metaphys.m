@@ -10,7 +10,7 @@ function [] = metaphys(action)
 %   - Initialize any non-matlab drivers, activex controls, etc
 % - Initialize GUI. User will set up DAQ preferences here
 %
-% Copyright 2006-2011 dmeliza@uchicago.edu; see LICENSE
+% Copyright 2006-2011  dmeliza@uchicago.edu; see LICENSE
 
 if nargin > 0 && strcmpi(action,'destroy')
     %
@@ -50,7 +50,7 @@ function [] = createFigure()
 %% Open the figure
 DebugPrint('Opening main METAPHYS window.')
 fig = OpenGuideFigure(mfilename);
-movegui(fig,'northwest');
+% movegui(fig,'northwest');
 set(fig,'units','normalized','CloseRequestFcn',@close_metaphys);
 %% Set callbacks on buttons
 btns    = findobj(fig, 'style', 'pushbutton');
@@ -182,7 +182,9 @@ updateInstruments
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function [] = updateInstruments()
 % Updates the instrument list
+
 instruments = GetInstrumentNames;
+
 SetUIParam(mfilename,'instruments','String',instruments)
 h           = GetUIHandle(mfilename,{'protocol_init', 'seal_test',...
     'protocol_start', 'protocol_record'});
@@ -233,7 +235,7 @@ switch tag
         pwd         = cd(pn);
         [fn pn]     = uigetfile({'*.m', 'Protocol Files (*.m)';...
             '*.*', 'All Files (*.*)'},...
-            'Select Protocol...');
+            'Select Protocol...', 'C:/cygwin/home/adaou/metaphys/Protocols');
         cd(pwd);
         if ~isnumeric(fn)
             SetUIParam(mfilename,'protocol', 'string', fn,...
@@ -264,11 +266,17 @@ switch tag
     case 'seal_test'
         SealTest('init')
     case 'protocol_init'
+        % 'protocol' below is a char array
         protocol    = GetUIParam(mfilename, 'protocol');
         if ~isempty(protocol)
             [pn fn ext] = fileparts(protocol);
+            % the statement above returns: pn = '', fn = GapFree, ext = '.m'
             pfunc       = str2func(fn);
+            % The command above returns: pfunc =  @GapFree. If you look
+            % carefully, there is a function called GapFree under the
+            % folder "Protocols"
             fhandle     = pfunc('init');
+            
             SetCurrentProtocol(fhandle);
         end
     case 'protocol_start'
@@ -305,9 +313,12 @@ function [] = menu(obj, event)
 tag = get(obj, 'tag');
 switch tag
     case 'm_load_prefs'
+%         [fn pn] = uigetfile({'*.mcf', 'METAPHYS control file (*.mcf)';...
+%             '*.*',  'All Files (*.*)'},...
+%             'Select METAPHYS control file...');
         [fn pn] = uigetfile({'*.mcf', 'METAPHYS control file (*.mcf)';...
-            '*.*',  'All Files (*.*)'},...
-            'Select METAPHYS control file...');
+              '*.*',  'All Files (*.*)'},...
+              'Select METAPHYS control file...', 'C:/cygwin/home/adaou/metaphys/700B/vitro channel');
         if ~isnumeric(fn)
             LoadControl(fullfile(pn, fn))
             updateFigure
